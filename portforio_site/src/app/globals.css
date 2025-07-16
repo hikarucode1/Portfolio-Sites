@@ -20,7 +20,127 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, 'Hiragino Sans', 'Meiryo', sans-serif;
+  background: #f7f8fa;
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  padding: 2rem;
+}
+
+nav {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+nav a {
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+nav a:hover {
+  background: #f0f4fa;
+  color: #0070f3;
+}
+
+h1, h2, h3 {
+  font-weight: 700;
+  color: #222;
+}
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.4rem; margin-top: 2rem; }
+h3 { font-size: 1.1rem; }
+
+input, textarea {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin-top: 0.3rem;
+  background: #fafbfc;
+  transition: border 0.2s;
+}
+input:focus, textarea:focus {
+  border: 1.5px solid #0070f3;
+  outline: none;
+}
+
+button {
+  background: #0070f3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.5rem;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover {
+  background: #0059c9;
+}
+
+/* カードデザイン */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10), 0 1.5px 6px rgba(0,112,243,0.08);
+  border: 1px solid #e5e7eb;
+  padding: 1.2rem;
+  width: 300px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.card:hover {
+  box-shadow: 0 8px 32px rgba(0,112,243,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  transform: translateY(-4px) scale(1.03);
+}
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.card .tech {
+  display: inline-block;
+  font-size: 12px;
+  background: #f0f4fa;
+  color: #0070f3;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-right: 4px;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 700px) {
+  main {
+    padding: 1rem;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .card {
+    width: 100%;
+    min-width: 0;
+  }
+  nav {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
