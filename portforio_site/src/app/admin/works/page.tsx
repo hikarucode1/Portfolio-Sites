@@ -1,10 +1,19 @@
 "use client";
-import { useState } from "react";
-import { Work, works as initialWorks } from "../../../data/works";
+import { useState, useEffect } from "react";
+import { db } from "../../../lib/firebase";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
+import { Work } from "../../../data/works";
 
-// formの型からWorkのimage, techStackを除外し、string型で管理
 export default function AdminWorksPage() {
-  const [works, setWorks] = useState<Work[]>(initialWorks);
+  const [works, setWorks] = useState<Work[]>([]);
   const [form, setForm] = useState<{
     id?: string;
     title?: string;
@@ -17,16 +26,26 @@ export default function AdminWorksPage() {
     role?: string;
   }>({});
   const [editId, setEditId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Firestoreから作品一覧を取得（リアルタイム反映）
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "works"), (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })) as Work[];
+      setWorks(data);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title || !form.description) return;
-    const newWork: Work = {
-      id: editId ? editId : Date.now().toString(),
+    const newWork: Omit<Work, "id"> = {
       title: form.title,
       description: form.description,
       image: form.image ? [form.image] : [],
@@ -37,10 +56,10 @@ export default function AdminWorksPage() {
       role: form.role,
     };
     if (editId) {
-      setWorks(works.map(w => w.id === editId ? newWork : w));
+      await updateDoc(doc(db, "works", editId), newWork);
       setEditId(null);
     } else {
-      setWorks([...works, newWork]);
+      await addDoc(collection(db, "works"), newWork);
     }
     setForm({});
   };
@@ -60,8 +79,8 @@ export default function AdminWorksPage() {
     setEditId(work.id);
   };
 
-  const handleDelete = (id: string) => {
-    setWorks(works.filter(w => w.id !== id));
+  const handleDelete = async (id: string) => {
+    await deleteDoc(doc(db, "works", id));
     if (editId === id) {
       setEditId(null);
       setForm({});
@@ -84,17 +103,19 @@ export default function AdminWorksPage() {
         {editId && <button type="button" onClick={() => { setEditId(null); setForm({}); }} style={{ marginTop: 4 }}>キャンセル</button>}
       </form>
       <h2>作品一覧</h2>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {works.map(work => (
-          <li key={work.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: "1rem", marginBottom: 12 }}>
-            <strong>{work.title}</strong> - {work.description}
-            <div style={{ marginTop: 8 }}>
-              <button onClick={() => handleEdit(work)} style={{ marginRight: 8 }}>編集</button>
-              <button onClick={() => handleDelete(work.id)} style={{ color: "red" }}>削除</button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {loading ? <div>読み込み中...</div> : (
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {works.map(work => (
+            <li key={work.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: "1rem", marginBottom: 12 }}>
+              <strong>{work.title}</strong> - {work.description}
+              <div style={{ marginTop: 8 }}>
+                <button onClick={() => handleEdit(work)} style={{ marginRight: 8 }}>編集</button>
+                <button onClick={() => handleDelete(work.id)} style={{ color: "red" }}>削除</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </main>
   );
 } 
